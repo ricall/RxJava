@@ -1,7 +1,7 @@
 package au.org.rma.sandbox;
 
 import au.org.rma.sandbox.async.AsyncRestTemplateFactory;
-import au.org.rma.sandbox.async.AsyncRestTemplateCurrencyRateInterceptor;
+import au.org.rma.sandbox.async.OAuthAsyncRestTemplate;
 import au.org.rma.sandbox.state.StateHolderOnScheduleActionHook;
 import au.org.rma.sandbox.state.StateHolderTaskDecorator;
 import org.springframework.context.annotation.Bean;
@@ -11,33 +11,23 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.AsyncRestTemplate;
 import rx.plugins.RxJavaHooks;
 
-import java.util.Collections;
-
 @Configuration
 public class SandboxConfiguration {
 
     @Bean
     AsyncRestTemplateFactory asyncRestTemplateFactory() {
-        return new AsyncRestTemplateFactory(asyncRestTemplate());
+        return new AsyncRestTemplateFactory(oauthAsyncRestTemplate());
+    }
+
+    @Bean
+    AsyncRestTemplate asyncRestTemplate() {
+        return new AsyncRestTemplate(threadPoolTaskExecutor());
     }
 
     @Bean
     @Primary
-    AsyncRestTemplate asyncRestTemplate() {
-        AsyncRestTemplate template = new AsyncRestTemplate(threadPoolTaskExecutor());
-        template.setInterceptors(Collections.singletonList(interceptor()));
-        return template;
-    }
-
-    @Bean
-    AsyncRestTemplate interceptorRestTemplate() {
-        return new AsyncRestTemplate(threadPoolTaskExecutor());
-    }
-
-
-    @Bean
-    AsyncRestTemplateCurrencyRateInterceptor interceptor() {
-        return new AsyncRestTemplateCurrencyRateInterceptor(interceptorRestTemplate());
+    OAuthAsyncRestTemplate oauthAsyncRestTemplate() {
+        return new OAuthAsyncRestTemplate(threadPoolTaskExecutor(), asyncRestTemplate());
     }
 
     @Bean

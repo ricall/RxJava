@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rx.Observable;
 import rx.Single;
+import rx.schedulers.Schedulers;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,5 +38,6 @@ public class TextService {
         return templateFactory.builder("https://api.chucknorris.io/jokes/random")
                 .addHeader("User-Agent", "node")
                 .exchange(String.class);
+                //.subscribeOn(Schedulers.io()); // Use this to run the subscription in a different thread
     }
 }
