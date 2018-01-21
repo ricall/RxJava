@@ -1,5 +1,6 @@
 package au.org.rma.sandbox.async;
 
+import au.org.rma.sandbox.state.StateHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.AsyncListenableTaskExecutor;
 import org.springframework.http.HttpMethod;
@@ -29,9 +30,11 @@ public class OAuthAsyncRestTemplate extends AsyncRestTemplate {
     protected <T> ListenableFuture<T> doExecute(URI url, HttpMethod method, AsyncRequestCallback requestCallback, ResponseExtractor<T> responseExtractor) throws RestClientException {
         ListenableFuture<ResponseEntity<String>> future = restTemplate.exchange(CURRENCY_URL, HttpMethod.GET, null, String.class);
         SettableListenableFuture<T> settable = new SettableListenableFuture<>();
+        log.info("OAuth: {}", StateHolder.getState());
 
         future.addCallback(response -> {
             try {
+                log.info("OAuth Callback: {}", StateHolder.getState());
                 AsyncRequestCallback newRequestCallback = requestCallback;
                 if (response.getStatusCode().is2xxSuccessful()) {
                     newRequestCallback = request -> {
